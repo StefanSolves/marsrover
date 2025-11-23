@@ -82,3 +82,16 @@ Test Scenarios Covered:
 ├── input.txt              # Sample data
 └── go.mod                 # Module definition
 
+
+
+## ⚠️ Assumptions & Limitations
+
+### Assumptions
+1.  **Ghost Rovers (No Collision):** The requirements state that rovers move sequentially. I have assumed that rovers can share the same coordinate space (i.e., Rover 2 can stop at the same location as Rover 1 without crashing).
+2.  **Grid Origin:** The lower-left coordinate is always fixed at `(0, 0)`.
+3.  **Flat Terrain:** The plateau is assumed to be obstacle-free; only the outer grid boundaries restrict movement.
+
+### Limitations
+1.  **Concurrency:** The solution processes rovers strictly sequentially (Single-Threaded). While Go excels at concurrency, the requirements specified sequential operation.
+2.  **Integer Bounds:** Coordinates are parsed as standard `int`. Extremely large coordinates (exceeding system integer limits) are not explicitly handled.
+
