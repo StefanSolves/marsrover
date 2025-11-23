@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"mars-rover/internal/navigation"
+	"marsrover/internal/navigation"
 	"os"
 	"strconv"
 	"strings"
