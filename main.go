@@ -31,7 +31,7 @@ func main() {
 	}
 	plateauLine := scanner.Text()
 	plateauParams := strings.Fields(plateauLine)
-	
+
 	if len(plateauParams) != 2 {
 		if isInteractive {
 			fmt.Println("Error: Expected Plateau coordinates (e.g. '5 5')")
@@ -39,7 +39,7 @@ func main() {
 		}
 		panic("Invalid plateau definition")
 	}
-	
+
 	pX, _ := strconv.Atoi(plateauParams[0])
 	pY, _ := strconv.Atoi(plateauParams[1])
 	plateau := navigation.NewPlateau(pX, pY)
@@ -49,7 +49,7 @@ func main() {
 		line := scanner.Text()
 		trimmedLine := strings.TrimSpace(line)
 
-		// THE FIX: Always break on empty line. 
+		// THE FIX: Always break on empty line.
 		// This works for manual typing AND files (as long as files don't have random blank lines).
 		if trimmedLine == "" {
 			break
