@@ -10,19 +10,20 @@ import (
 )
 
 func main() {
-	// 1. Check if input is coming from a terminal (Interactive) or a file (Pipe)
+	// 1. Simple Header
+	// We check if it's a terminal just to decide if we print the "Instructions"
 	stat, _ := os.Stdin.Stat()
 	isInteractive := (stat.Mode() & os.ModeCharDevice) != 0
 
 	if isInteractive {
 		fmt.Println("--- Mars Rover Control ---")
-		fmt.Println("Enter data (Plateau size, then Rover pairs).")
-		fmt.Println("Press ENTER on an empty line to finish and view results.")
+		fmt.Println("Paste your input below.")
+		fmt.Println("Press ENTER on an empty line to finish.")
 		fmt.Println("--------------------------")
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
-	var results []string // Buffer to store output
+	var results []string
 
 	// 2. Parse Plateau
 	if !scanner.Scan() {
@@ -30,23 +31,33 @@ func main() {
 	}
 	plateauLine := scanner.Text()
 	plateauParams := strings.Fields(plateauLine)
+	
 	if len(plateauParams) != 2 {
-		panic("Invalid plateau definition. Expected two integers (e.g., '5 5')")
+		if isInteractive {
+			fmt.Println("Error: Expected Plateau coordinates (e.g. '5 5')")
+			return
+		}
+		panic("Invalid plateau definition")
 	}
-
+	
 	pX, _ := strconv.Atoi(plateauParams[0])
 	pY, _ := strconv.Atoi(plateauParams[1])
 	plateau := navigation.NewPlateau(pX, pY)
 
 	// 3. Loop through Rovers
 	for scanner.Scan() {
-		posLine := strings.TrimSpace(scanner.Text())
-		if posLine == "" {
-			continue
+		line := scanner.Text()
+		trimmedLine := strings.TrimSpace(line)
+
+		// THE FIX: Always break on empty line. 
+		// This works for manual typing AND files (as long as files don't have random blank lines).
+		if trimmedLine == "" {
+			break
 		}
 
-		parts := strings.Fields(posLine)
+		parts := strings.Fields(trimmedLine)
 		if len(parts) != 3 {
+			// Skip malformed lines (like "foo bar")
 			continue
 		}
 
@@ -56,25 +67,20 @@ func main() {
 
 		heading, err := navigation.ParseDirection(headingStr)
 		if err != nil {
-			// In interactive mode, we might want to warn the user
-			if isInteractive {
-				fmt.Printf("Warning: Invalid direction '%s'. Skipping rover.\n", headingStr)
-			}
 			continue
 		}
 
 		rover := navigation.NewRover(x, y, heading, plateau)
 
+		// Get Commands
 		if scanner.Scan() {
 			cmdLine := strings.TrimSpace(scanner.Text())
 			rover.ExecuteCommands(cmdLine)
-			
-			// Store result in buffer instead of printing immediately
 			results = append(results, rover.CurrentPosition())
 		}
 	}
 
-	// 4. Print all results at once (Prevents visual clutter)
+	// 4. Output
 	if isInteractive {
 		fmt.Println("\n--- Final Rover Positions ---")
 	}
