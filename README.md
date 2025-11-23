@@ -18,7 +18,7 @@ The project is structured to separate the **Entry Point** (CLI) from the **Domai
 
 ```mermaid
 graph TD
-    User([User / Input File]) -->|Stream| Main[Entry Point (main.go)]
+    User(["User / Input File"]) -->|Stream| Main["Entry Point (main.go)"]
     
     subgraph "Internal Navigation Package"
         Main -->|Instantiates| Plateau[Plateau Grid]
@@ -26,11 +26,11 @@ graph TD
         Rover -->|Validates Move| Plateau
         Rover -->|Uses| Direction[Direction Logic]
         
-        Direction -->|Calculates| Rotation[Left / Right Rotation]
-        Rover -->|Executes| Command[Command Parsing (L, R, M)]
+        Direction -->|Calculates| Rotation["Left / Right Rotation"]
+        Rover -->|Executes| Command["Command Parsing (L, R, M)"]
     end
     
-    Rover -->|Returns| State[Final Position (X Y D)]
+    Rover -->|Returns| State["Final Position (X Y D)"]
     State -->|Output| User
 ```
 
