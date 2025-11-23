@@ -3,16 +3,28 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"mars-rover/internal/navigation"
 	"os"
 	"strconv"
 	"strings"
-	"marsrover/internal/navigation"
 )
 
 func main() {
-	scanner := bufio.NewScanner(os.Stdin)
+	// 1. Check if input is coming from a terminal (Interactive) or a file (Pipe)
+	stat, _ := os.Stdin.Stat()
+	isInteractive := (stat.Mode() & os.ModeCharDevice) != 0
 
-	// 1. Parse Plateau (First Line)
+	if isInteractive {
+		fmt.Println("--- Mars Rover Control ---")
+		fmt.Println("Enter data (Plateau size, then Rover pairs).")
+		fmt.Println("Press ENTER on an empty line to finish and view results.")
+		fmt.Println("--------------------------")
+	}
+
+	scanner := bufio.NewScanner(os.Stdin)
+	var results []string // Buffer to store output
+
+	// 2. Parse Plateau
 	if !scanner.Scan() {
 		return
 	}
@@ -26,7 +38,7 @@ func main() {
 	pY, _ := strconv.Atoi(plateauParams[1])
 	plateau := navigation.NewPlateau(pX, pY)
 
-	// 2. Loop through Rovers
+	// 3. Loop through Rovers
 	for scanner.Scan() {
 		posLine := strings.TrimSpace(scanner.Text())
 		if posLine == "" {
@@ -44,7 +56,10 @@ func main() {
 
 		heading, err := navigation.ParseDirection(headingStr)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error parsing direction: %v\n", err)
+			// In interactive mode, we might want to warn the user
+			if isInteractive {
+				fmt.Printf("Warning: Invalid direction '%s'. Skipping rover.\n", headingStr)
+			}
 			continue
 		}
 
@@ -53,7 +68,17 @@ func main() {
 		if scanner.Scan() {
 			cmdLine := strings.TrimSpace(scanner.Text())
 			rover.ExecuteCommands(cmdLine)
-			fmt.Println(rover.CurrentPosition())
+			
+			// Store result in buffer instead of printing immediately
+			results = append(results, rover.CurrentPosition())
 		}
+	}
+
+	// 4. Print all results at once (Prevents visual clutter)
+	if isInteractive {
+		fmt.Println("\n--- Final Rover Positions ---")
+	}
+	for _, res := range results {
+		fmt.Println(res)
 	}
 }
